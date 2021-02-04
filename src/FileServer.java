@@ -1,7 +1,6 @@
 import java.io.File;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.text.MessageFormat;
 
 public class FileServer {
     public static final int MAXSIZE = 65507;
@@ -44,24 +43,35 @@ public class FileServer {
                             throw new Exception(e);
                         }
                         else if (dpData.startsWith("WRITE")) {
-                           try {
-                               param = dpData.split(" ", 2);
-                               param2 = param[1].split(",", 3);
-                               filename = param2[0].trim();
-                               lineNo = Integer.parseInt(param2[1].trim());
-                               newData = param2[2];
-                               f = new MyFile(wdir + filename);
-                               answer = f.write(lineNo, newData);
-                           } catch (Exception e) {
-                               answer = "*** Error 901: bad WRITE COMMAND";
-                               throw new Exception(e);
-                           }
+                            try {
+                                param = dpData.split(" ", 2);
+                                param2 = param[1].split(",", 3);
+                                filename = param2[0].trim();
+                                lineNo = Integer.parseInt(param2[1].trim());
+                                newData = param2[2];
+                                f = new MyFile(wdir + filename);
+                                answer = f.write(lineNo, newData);
+                            } catch (Exception e) {
+                                answer = "*** Error 901: bad WRITE COMMAND";
+                                throw new Exception(e);
+                            }
+                        } else {
+                            answer = "*** ERROR 902: unknown command";
+                            throw new Exception("Unknown Command");
                         }
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                try {
+                    dp2 = new DatagramPacket(answer.getBytes(), answer.getBytes().length, dp.getAddress(), dp.getPort());
+                    ds.send(dp2);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
     }
 }
