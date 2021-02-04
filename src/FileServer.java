@@ -42,24 +42,24 @@ public class FileServer {
                             answer = "*** Error 901: bad READ COMMAND";
                             throw new Exception(e);
                         }
-                        else if (dpData.startsWith("WRITE")) {
-                            try {
-                                param = dpData.split(" ", 2);
-                                param2 = param[1].split(",", 3);
-                                filename = param2[0].trim();
-                                lineNo = Integer.parseInt(param2[1].trim());
-                                newData = param2[2];
-                                f = new MyFile(wdir + filename);
-                                answer = f.write(lineNo, newData);
-                            } catch (Exception e) {
-                                answer = "*** Error 901: bad WRITE COMMAND";
-                                throw new Exception(e);
-                            }
-                        } else {
-                            answer = "*** ERROR 902: unknown command";
-                            throw new Exception("Unknown Command");
+                    } else if (dpData.startsWith("WRITE")) {
+                        try {
+                            param = dpData.split(" ", 2);
+                            param2 = param[1].split(",", 3);
+                            filename = param2[0].trim();
+                            lineNo = Integer.parseInt(param2[1].trim());
+                            newData = param2[2];
+                            f = new MyFile(wdir + filename);
+                            answer = f.write(lineNo, newData);
+                        } catch (Exception e) {
+                            answer = "*** Error 901: bad WRITE COMMAND";
+                            throw new Exception(e);
                         }
+                    } else {
+                        answer = "*** ERROR 902: unknown command";
+                        throw new Exception("Unknown Command");
                     }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -73,5 +73,6 @@ public class FileServer {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 }
