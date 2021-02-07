@@ -1,20 +1,15 @@
 import java.net.DatagramPacket;
-import java.util.concurrent.Semaphore;
 
-public class TaskQueue {
+class TaskQueue {
     Node first;
-    Semaphore mutex =  new Semaphore(1);
+    private FileMonitor fileMonitor = new FileMonitor(false);
 
-    public TaskQueue() {
+    TaskQueue() {
 
     }
 
-    public void put(DatagramPacket s) {
-        try {
-            mutex.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    void put(DatagramPacket s) {
+        fileMonitor.startWrite();
         Node newNode = new Node(s);
 
         if(this.first == null) {
@@ -27,16 +22,19 @@ public class TaskQueue {
             }
             last.next = newNode;
         }
-        mutex.release();
+        fileMonitor.endWrite();
     }
 
-    public DatagramPacket get() {
+    DatagramPacket get() {
+        fileMonitor.startRead();
         if (this.first != null) {
             Node current = this.first;
             this.first = this.first.next;
+            fileMonitor.endRead();
             return current.content;
         }
         else {
+            fileMonitor.endRead();
             return null;
         }
     }
@@ -48,15 +46,6 @@ public class TaskQueue {
             this.content = t;
             this.next = null;
         }
-
-    }
-
-    public static void main(DatagramPacket[] args) {
-        /*Z_Fifo_q q = new Z_Fifo_q();
-        q.put("Hi");
-        q.put("Ahh");
-        System.out.println(q.get());
-        System.out.println(q.get());*/
 
     }
 }
