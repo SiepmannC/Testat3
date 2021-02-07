@@ -3,60 +3,6 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 
 public class ThreadQueue {
-    /*Node first;
-    Semaphore mutex =  new Semaphore(1);
-
-    public ThreadQueue() {
-
-    }
-
-    public void put(Thread Thread) {
-        try {
-            mutex.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        Node newNode = new Node(Thread);
-
-        if(this.first == null) {
-            this.first = newNode;
-        }
-        else {
-            Node last = this.first;
-            while(last.next!=null) {
-                last = last.next;
-            }
-            last.next = newNode;
-        }
-        mutex.release();
-    }
-
-    public Thread get() {
-        if (this.first != null) {
-            Node current = this.first;
-            this.first = this.first.next;
-            return current.content;
-        }
-        else {
-            return null;
-        }
-    }
-
-    class Node {
-        Node next;
-        Thread content;
-        Node(Thread t) {
-            this.content = t;
-            this.next = null;
-        }
-
-    }
-
-    public static void main(Thread[] args) {
-
-
-    }*/
-
     private List queue = new LinkedList<Thread>();
     private int limit = 10;
 
@@ -68,7 +14,7 @@ public class ThreadQueue {
     synchronized void put(Thread thread) {
         while (this.queue.size() == this.limit) {
             try {
-                wait();
+                wait(); // Bounded, daher muss gewartet werden
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -80,10 +26,13 @@ public class ThreadQueue {
     }
 
 
-     synchronized Thread get()
-            throws InterruptedException {
+     synchronized Thread get() {
         while (this.queue.size() == 0) {
-            wait();
+            try {
+                wait(); // Leer, muss daher gewartet werden
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         if (this.queue.size() == this.limit) {
             notifyAll();

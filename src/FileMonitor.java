@@ -2,14 +2,16 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+//Synchronisation nach dem Monitor Konzept
 public class FileMonitor {
 
     // Diese Klasse beinhaltet 2 verschieden Lösungsvarienten
-    // Die erste Lösung ist mit ReentrantLock und Conditions implemntiert worden
-    // Die zweite dagegen verwendet synchronized und wait/notify
+    // Die erste Lösung verwendet synchronized und wait/notify (Eigentliche Abgabe)
+    // Die zweite dagegen ist mit ReentrantLock und Conditions implementiert worden (Zusatz)
 
-    private int writerCount = 0;
-    private int readerCount = 0;
+
+    private int writerCount = 0; // Anzahl der Schreiber
+    private int readerCount = 0; // Anzahl der Leser
     private boolean isWriting = false;
     private static Lock lock = new ReentrantLock();
     private static Condition reader = lock.newCondition();
@@ -22,11 +24,14 @@ public class FileMonitor {
 
     public FileMonitor(boolean mitAusgabe) {
         this.mitAusgabe = mitAusgabe;
+        // Steuert die Ausgabe, keine Auswrikung auf Funktionalität
         start_read =this.mitAusgabe ?">>> START READ":"";
         end_read =this.mitAusgabe ?">>> END READ":"";
         start_write =this.mitAusgabe ?"*** START WRITE":"";
         end_write = this.mitAusgabe ? "*** END WRITE" : "";
     }
+
+    // Die zweite Variante wurde auskommentiert
 
     /*void startRead() {
         lock.lock();
@@ -78,7 +83,7 @@ public class FileMonitor {
             }
         }
         //writer.signal();
-
+        writerCount--;
         isWriting = true;
         lock.unlock();
     }
@@ -86,7 +91,6 @@ public class FileMonitor {
     void endWrite() {
         lock.lock();
         System.out.println("*** END WRITE ***");
-        writerCount--;
         isWriting = false;
         try {
             if (writerCount > 0) {
@@ -102,30 +106,30 @@ public class FileMonitor {
     }*/
     private int writeRequests = 0;
 
-    public synchronized void startRead() {
+    public synchronized void startRead() { // Keyword synchronized ist wichtig für Monitore
         System.out.println(start_read);
-        while (writerCount > 0 || writeRequests > 0) {
+        while (writerCount > 0 || writeRequests > 0) { // Reader warten, falls Writer schreiben bzw. schreiben wollen
             try {
                 //System.out.println(">>> READ wartet");
-                this.wait();
+                this.wait(); // Wartezustand
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        readerCount++;
+        readerCount++; // warten zu Ende, noch ein Reader fängt an zu lesen
     }
 
     public synchronized void endRead() {
         System.out.println(end_read);
-        readerCount--;
-        this.notifyAll();
+        readerCount--; // Ein Reader weniger, welcher gerade liest
+        this.notifyAll(); // Informiert andere, dass es das Lesen beendet hat
     }
 
     public synchronized void startWrite() {
         System.out.println(start_write);
-        writeRequests++;
+        writeRequests++; // noch ein Schreiber möchte Lesen
 
-        while (readerCount > 0 || writerCount > 0) {
+        while (readerCount > 0 || writerCount > 0) { // Wartet bis alle Leser und Schreiber fertig sind
             try {
                 //System.out.println("*** WRITE wartet");
                 wait();
@@ -133,13 +137,13 @@ public class FileMonitor {
                 e.printStackTrace();
             }
         }
-        writeRequests--;
-        writerCount++;
+        writeRequests--; // Dieser Schreiber hat den Wartezustand verlassen
+        writerCount++; // und kann mit dem Schreiben anfangen
     }
 
     public synchronized void endWrite() {
         System.out.println(end_write);
-        writerCount--;
-        notifyAll();
+        writerCount--; // Schreiben wurde beendet
+        notifyAll(); // informiert andere
     }
 }

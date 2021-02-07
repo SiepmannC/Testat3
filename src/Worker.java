@@ -1,13 +1,11 @@
 import java.net.DatagramPacket;
-import java.util.concurrent.*;
 
 public class Worker implements Runnable {
 
     int id;
     DatagramPacket dp;
-    ThreadFactory threadFactory;
 
-    public Worker(int id) {
+    Worker(int id) {
         this.id = id;
     }
 
@@ -37,9 +35,9 @@ public class Worker implements Runnable {
                 String[] param2 = null;
                 DatagramPacket dp2 = null;
 
-                if (dpData.startsWith("READ")) {
+                if (dpData.startsWith("READ")) { // READ Request
                     try {
-                        FileServer.monitor.startRead();
+                        FileServer.monitor.startRead(); // Absicherung des krit. Abschnittes
                         Thread.sleep(8000);
                         param = dpData.split(" ", 2);
                         param2 = param[1].split(",", 2);
@@ -51,12 +49,12 @@ public class Worker implements Runnable {
                     } catch (Exception e) {
                         answer = "*** Error 901: bad READ COMMAND";
                         e.printStackTrace();
-                        FileServer.monitor.endRead();
+                        FileServer.monitor.endRead(); // Ende des krit. Abschn.
                     }
-                } else if (dpData.startsWith("WRITE")) {
+                } else if (dpData.startsWith("WRITE")) { // WRITE Request
                     try {
-                        FileServer.monitor.startWrite();
-                        Thread.sleep(12000);
+                        FileServer.monitor.startWrite(); // krit. Abschnit
+                        Thread.sleep(12000); // Wartezeit kann man hier anpassen
                         param = dpData.split(" ", 2);
                         param2 = param[1].split(",", 3);
                         filename = param2[0].trim();
@@ -67,20 +65,20 @@ public class Worker implements Runnable {
                         FileServer.monitor.endWrite();
                     } catch (Exception e) {
                         answer = "*** Error 901: bad WRITE COMMAND";
-                        FileServer.monitor.endWrite();
+                        FileServer.monitor.endWrite(); // analog
                     }
                 } else {
                     answer = "*** ERROR 902: unknown command";
                 }
 
                 try {
-                    dp2 = new DatagramPacket(answer.getBytes(), answer.getBytes().length, this.getDp().getAddress(), this.getDp().getPort());
-                    FileServer.ds.send(dp2);
+                    dp2 = new DatagramPacket(answer.getBytes(), answer.getBytes().length, this.getDp().getAddress(), this.getDp().getPort()); // response
+                    FileServer.ds.send(dp2); // Sende über den Server Socket
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-            FileServer.threadQueue.put(Thread.currentThread());
+            FileServer.threadQueue.put(Thread.currentThread()); // Thread wird wieder in die Queue gespeichert
         }
     }
 }

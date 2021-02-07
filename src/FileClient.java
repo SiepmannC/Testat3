@@ -3,8 +3,8 @@ import java.io.*;
 
 
 public class FileClient {
-	public final static int DEFAULT_PORT = 5999;
-	public final static int MAX_PACKET_SIZE = 65507;
+	private final static int DEFAULT_PORT = 5999;
+	private final static int MAX_PACKET_SIZE = 65507;
 	
 	public static void main (String[] args) {
 		BufferedReader userIn = new BufferedReader (new InputStreamReader(System.in));
@@ -55,7 +55,7 @@ public class FileClient {
 				
 			}//try
 		catch (Exception e) {
-			System.err.println(e);
+			System.err.println(e.toString());
 		}
 		
 	}//main

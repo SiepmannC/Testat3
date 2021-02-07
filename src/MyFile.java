@@ -6,7 +6,7 @@ class MyFile {
     private String fileName;
 
 
-    public MyFile(String fileName) {
+    MyFile(String fileName) {
         this.fileName = fileName;
     }
 
@@ -39,7 +39,7 @@ class MyFile {
         return answer;
     }//read
 
-    public String write(int lineNo, String data) {
+    String write(int lineNo, String data) {
 
 
         String answer = "";

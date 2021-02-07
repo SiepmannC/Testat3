@@ -2,14 +2,13 @@ import java.net.DatagramPacket;
 
 class TaskQueue {
     Node first;
-    private FileMonitor fileMonitor = new FileMonitor(false);
+    private FileMonitor fileMonitor = new FileMonitor(false); // Threadsicherheit mit Monitor
 
     TaskQueue() {
-
     }
 
     void put(DatagramPacket s) {
-        fileMonitor.startWrite();
+        fileMonitor.startWrite(); // krit. Abschnitt
         Node newNode = new Node(s);
 
         if(this.first == null) {
@@ -26,7 +25,7 @@ class TaskQueue {
     }
 
     DatagramPacket get() {
-        fileMonitor.startRead();
+        fileMonitor.startRead(); // krit. Abschnitt
         if (this.first != null) {
             Node current = this.first;
             this.first = this.first.next;
