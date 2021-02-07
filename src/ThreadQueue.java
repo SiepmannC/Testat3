@@ -1,6 +1,5 @@
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 
 public class ThreadQueue {
     /*Node first;
@@ -80,10 +79,13 @@ public class ThreadQueue {
     }
 
 
-     synchronized Thread get()
-            throws InterruptedException {
+     synchronized Thread get() {
         while (this.queue.size() == 0) {
-            wait();
+            try {
+                wait();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         if (this.queue.size() == this.limit) {
             notifyAll();

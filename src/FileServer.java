@@ -10,6 +10,7 @@ public class FileServer {
     static DatagramSocket ds;
     private static final int anzahlThreads = 3;
     static ThreadQueue threadQueue = new ThreadQueue(anzahlThreads);
+    // Als Thread sichere Queue implementier, kann auch analog zu ThreadQueue als bounden implementiert werden.
     static TaskQueue taskQueue = new TaskQueue();
     static FileMonitor monitor = new FileMonitor(true);
 
