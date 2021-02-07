@@ -1,7 +1,9 @@
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 
 public class ThreadQueue {
-    Node first;
+    /*Node first;
     Semaphore mutex =  new Semaphore(1);
 
     public ThreadQueue() {
@@ -51,11 +53,42 @@ public class ThreadQueue {
     }
 
     public static void main(Thread[] args) {
-        /*Z_Fifo_q q = new Z_Fifo_q();
-        q.put("Hi");
-        q.put("Ahh");
-        System.out.println(q.get());
-        System.out.println(q.get());*/
 
+
+    }*/
+
+    private List queue = new LinkedList<Thread>();
+    private int limit = 10;
+
+    ThreadQueue(int limit) {
+        this.limit = limit;
+    }
+
+
+    synchronized void put(Thread thread) {
+        while (this.queue.size() == this.limit) {
+            try {
+                wait();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        this.queue.add(thread);
+        if (this.queue.size() == 1) {
+            notifyAll();
+        }
+    }
+
+
+     synchronized Thread get()
+            throws InterruptedException {
+        while (this.queue.size() == 0) {
+            wait();
+        }
+        if (this.queue.size() == this.limit) {
+            notifyAll();
+        }
+
+        return (Thread) this.queue.remove(0);
     }
 }
