@@ -3,16 +3,17 @@ import java.io.File;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
-public class FileServer implements Runnable {
+public class FileServer {
     public static final int MAXSIZE = 65507;
     private static int port = 5999;
-    private static String wdir = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "FileServer" + File.separator;
-    private static DatagramSocket ds;
-    private static ThreadQueue threadQueue = new ThreadQueue();
-    private static final int anzahlThreads = 1;
-    private static TaskQueue taskQueue = new TaskQueue();
+    static String wdir = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "FileServer" + File.separator;
+    static DatagramSocket ds;
+    static ThreadQueue threadQueue = new ThreadQueue();
+    private static final int anzahlThreads = 3;
+    static TaskQueue taskQueue = new TaskQueue();
+    static FileMonitor monitor = new FileMonitor();
 
-    private int id;
+    /*private int id;
     private DatagramPacket dp;
     private FileMonitor monitor = new FileMonitor();
 
@@ -26,26 +27,16 @@ public class FileServer implements Runnable {
 
     private DatagramPacket getDp() {
         return this.dp;
-    }
+    }*/
 
-    public static void main(String[] args) throws Exception {
-        String dpData = "";
-        String answer = "***Error 900: unknown error";
-        String filename = "";
-        String newData = "";
-        int lineNo = -1;
-
-        MyFile f = null;
-        String[] param = null;
-        String[] param2 = null;
-        //DatagramSocket ds = null;
+    public static void main(String[] args) {
         DatagramPacket dp = null;
-        DatagramPacket dp2 = null;
 
         for (int i = 0; i < anzahlThreads; i++) {
-            FileServer fileServer = new FileServer(i);
-            Thread t = new Thread(fileServer);
-            threadQueue.put(t);
+            Worker target = new Worker(i);
+            Thread thread = new Thread(target);
+            threadQueue.put(thread);
+            System.out.println(target.id + "Thread in Queue");
             //t.start();
         }
 
@@ -66,15 +57,17 @@ public class FileServer implements Runnable {
                         Thread t = threadQueue.get();
                         if (t != null) {
                             //fileServer.setDp(dp);
-                            if (!t.isAlive()) {
+                            if (!t.isAlive() && !t.getState().equals(Thread.State.TERMINATED)) {
                                 try {
                                     t.start();
                                 } catch (Exception e) {
-                                    System.out.println("Thread mit ID " + t.getId() + " kann nicht gestartet werde, State: "
+                                    System.out.println("Thread mit ID " + t.getId() + " kann nicht gestartet werden, State: "
                                             + t.getState());
                                     e.printStackTrace();
                                 }
                             }
+                        } else {
+                            System.out.println("Thread Queue leer");
                         }
                     }
 
@@ -124,7 +117,7 @@ public class FileServer implements Runnable {
 
     }
 
-    @Override
+    /*@Override
     public void run() {
         DatagramPacket dp = taskQueue.get();
         this.setDp(dp);
@@ -194,5 +187,5 @@ public class FileServer implements Runnable {
                 threadQueue.put(Thread.currentThread());
             }
         }
-    }
+    }*/
 }

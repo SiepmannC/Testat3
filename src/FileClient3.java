@@ -32,7 +32,6 @@ public class FileClient3 {
 			InetAddress host = InetAddress.getByName(hostname);
 			System.out.println("Type command to send!");
 			System.out.println("('READ file, lineNo'or' WRITE file,lineNo, data'or'x' to exit )");
-			
 			do {
 				System.out.println("> ");
 				s = userIn.readLine();
